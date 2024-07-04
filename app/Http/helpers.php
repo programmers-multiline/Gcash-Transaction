@@ -1,10 +1,10 @@
 <?php
 
 function add_public(){
-    if(env("APP_ENV") == 'local'){
-         env('ASSET_URL', '/');
+    if(env("APP_ENV") != 'local'){
+     echo 'public';
     }else{
-         env('ASSET_URL', '/public');
+        echo '';
     }
 }
 
