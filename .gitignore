@@ -6,3 +6,4 @@
 /public.index.php
 .htaccess
 /config
+config/app.php
