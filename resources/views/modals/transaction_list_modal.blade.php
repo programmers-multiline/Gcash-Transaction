@@ -16,7 +16,7 @@
                         class="table fs-sm table-bordered table-hover table-vcenter w-100">
                         <thead>
                             <tr>
-                                <th class="twoClick">Mobile Number</th>
+                                <th>Mobile Number</th>
                                 <th>Client Name</th>
                                 <th>Pension Type</th>
                                 <th>Pension Number</th>

@@ -155,9 +155,6 @@
     <script>
         $(function() {
 
-            $(".twoClick").click();
-            $(".twoClick").click();
-            
             const table = $("#table").DataTable({
                 processing: true,
                 serverSide: false,
@@ -198,45 +195,46 @@
                 const transacNum = $(this).data("tn");
                 const status = $(this).data("status");
 
-
-                const modalTable = $("#modalTable").DataTable({
-                    processing: true,
-                    serverSide: false,
-                    destroy: true,
-                    ajax: {
-                        type: 'get',
-                        url: '{{ route('fetch_transaction_modal') }}',
-                        data: {
-                            transacNum,
-                            status,
-                            _token: '{{ csrf_token() }}'
+                setTimeout(() => {
+                    const modalTable = $("#modalTable").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        destroy: true,
+                        ajax: {
+                            type: 'get',
+                            url: '{{ route('fetch_transaction_modal') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
+    
+                        },
+                        columns: [{
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'pension_type'
+                            },
+                            {
+                                data: 'pension_number'
+                            },
+                            {
+                                data: 'amount'
+                            },
+                            {
+                                data: 'status'
+                            },
+                        ],
+                        scrollX: true,
+                        drawCallback: function() {
+                            $(".receivedBtn").tooltip();
                         }
-
-                    },
-                    columns: [{
-                            data: 'mobile_number'
-                        },
-                        {
-                            data: 'client_name'
-                        },
-                        {
-                            data: 'pension_type'
-                        },
-                        {
-                            data: 'pension_number'
-                        },
-                        {
-                            data: 'amount'
-                        },
-                        {
-                            data: 'status'
-                        },
-                    ],
-                    scrollX: true,
-                    drawCallback: function() {
-                        $(".receivedBtn").tooltip();
-                    }
-                });
+                    });
+                }, 200);
             })
         })
     </script>

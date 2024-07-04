@@ -73,9 +73,6 @@
     <script>
         $(function() {
 
-            $(".twoClick").click();
-            $(".twoClick").click();
-
             const path = $("#path").val();
 
             const table = $("#table").DataTable({
@@ -130,64 +127,66 @@
                     $("#approveBtn").prop('disabled', false);
                     $("#declineBtn").prop('disabled', false);
                 }
-
-                const modalTable = $("#modalTable").DataTable({
-                    processing: true,
-                    serverSide: false,
-                    searchable: true,
-                    pagination: true,
-                    destroy: true,
-                    "aoColumnDefs": [{
-                            "bSortable": false,
-                            "aTargets": [0]
+                
+                setTimeout(() => {
+                    const modalTable = $("#modalTable").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        searchable: true,
+                        pagination: true,
+                        destroy: true,
+                        "aoColumnDefs": [{
+                                "bSortable": false,
+                                "aTargets": [0]
+                            },
+                            {
+                                "targets": [1],
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        ajax: {
+                            type: 'get',
+                            url: '{{ route('fetch_transaction_modal') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
                         },
-                        {
-                            "targets": [1],
-                            "visible": false,
-                            "searchable": false
-                        }
-                    ],
-                    ajax: {
-                        type: 'get',
-                        url: '{{ route('fetch_transaction_modal') }}',
-                        data: {
-                            transacNum,
-                            status,
-                            _token: '{{ csrf_token() }}'
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: DataTable.render.select(),
-                            className: 'selectedTools'
+                        columns: [{
+                                data: null,
+                                render: DataTable.render.select(),
+                                className: 'selectedTools'
+                            },
+                            {
+                                data: 'id'
+                            },
+                            {
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'pension_type'
+                            },
+                            {
+                                data: 'pension_number'
+                            },
+                            {
+                                data: 'amount'
+                            },
+                            {
+                                data: 'status'
+                            },
+                        ],
+                        select: {
+                            style: 'multi+shift',
+                            selector: 'td'
                         },
-                        {
-                            data: 'id'
-                        },
-                        {
-                            data: 'mobile_number'
-                        },
-                        {
-                            data: 'client_name'
-                        },
-                        {
-                            data: 'pension_type'
-                        },
-                        {
-                            data: 'pension_number'
-                        },
-                        {
-                            data: 'amount'
-                        },
-                        {
-                            data: 'status'
-                        },
-                    ],
-                    select: {
-                        style: 'multi+shift',
-                        selector: 'td'
-                    },
-                });
+                    });
+                }, 200);
 
                 modalTable.select.selector('td:first-child');
 

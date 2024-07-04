@@ -76,8 +76,6 @@
         $(function() {
 
             const path = $("#path").val();
-            $(".twoClick").click();
-            $(".twoClick").click();
 
             const table = $("#table").DataTable({
                 processing: true,
@@ -124,65 +122,68 @@
                 const transacNum = $(this).data("tn");
                 const status = $(this).data("status");
 
-                const modalTable = $("#modalTable").DataTable({
-                    processing: true,
-                    serverSide: false,
-                    destroy: true,
-                    ajax: {
-                        type: 'get',
-                        url: '{{ route('fetch_transactions_approved') }}',
-                        data: {
-                            transacNum,
-                            status,
-                            _token: '{{ csrf_token() }}'
-                        }
+                setTimeout(() => {
+                    const modalTable = $("#modalTable").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        destroy: true,
+                        ajax: {
+                            type: 'get',
+                            url: '{{ route('fetch_transactions_approved') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
 
-                    },
-                    columns: [{
-                            data: 'mobile_number'
                         },
-                        {
-                            data: 'client_name'
-                        },
-                        {
-                            data: 'pension_type'
-                        },
-                        {
-                            data: 'pension_number'
-                        },
-                        {
-                            data: 'amount'
-                        },
-                        {
-                            data: 'status'
-                        },
-                    ],
-                    dom: 'Bfrtip',
-                    buttons: [{
-                        text: '<i class="fa fa-download me-1"></i> Download',
-                        className: 'bg-primary downloadBtn',
-                        action: function(e, dt, ) {
-                            const currentDate = $("#currentDate").val();
-                            const copiedData = dt.buttons.exportData().body;
-                            const dataString = copiedData.map(row => row.join('\t'))
-                                .join('\n');
-                            const blob = new Blob([dataString], {
-                                type: 'text/plain'
-                            });
-                            const a = document.createElement('a');
-                            a.href = URL.createObjectURL(blob);
-                            a.download = currentDate + '.txt';
-                            a.click();
-                            URL.revokeObjectURL(a.href);
+                        columns: [{
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'pension_type'
+                            },
+                            {
+                                data: 'pension_number'
+                            },
+                            {
+                                data: 'amount'
+                            },
+                            {
+                                data: 'status'
+                            },
+                        ],
+                        dom: 'Bfrtip',
+                        buttons: [{
+                            text: '<i class="fa fa-download me-1"></i> Download',
+                            className: 'bg-primary downloadBtn',
+                            action: function(e, dt, ) {
+                                const currentDate = $("#currentDate").val();
+                                const copiedData = dt.buttons.exportData().body;
+                                const dataString = copiedData.map(row => row
+                                        .join('\t'))
+                                    .join('\n');
+                                const blob = new Blob([dataString], {
+                                    type: 'text/plain'
+                                });
+                                const a = document.createElement('a');
+                                a.href = URL.createObjectURL(blob);
+                                a.download = currentDate + '.txt';
+                                a.click();
+                                URL.revokeObjectURL(a.href);
+                            }
+                        }, ],
+                        scrollX: true,
+                        drawCallback: function() {
+                            if (status) {
+                                $(".downloadBtn").prop('disabled', true);
+                            }
                         }
-                    }, ],
-                    scrollX: true,
-                    drawCallback: function() {
-                        if (status) {
-                            $(".downloadBtn").prop('disabled', true);
-                        }
-                    }
-                });
+                    });
+                }, 200);
             })
 
 

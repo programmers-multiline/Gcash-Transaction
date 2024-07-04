@@ -62,9 +62,6 @@
     <script>
         $(function() {
 
-            $(".twoClick").click();
-            $(".twoClick").click();
-
             const path = $("#path").val();
 
             const table = $("#table").DataTable({
@@ -120,64 +117,67 @@
                     $("#declineBtn").prop('disabled', false);
                 }
 
-                const modalTable = $("#modalTable").DataTable({
-                    processing: true,
-                    serverSide: false,
-                    searchable: true,
-                    pagination: true,
-                    orderable: false,
-                    order: false,
-                    destroy: true,
-                    "aoColumnDefs": [{
-                            "bSortable": false,
-                            "aTargets": [0]
+                setTimeout(() => {
+                    const modalTable = $("#modalTable").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        searchable: true,
+                        pagination: true,
+                        orderable: false,
+                        order: false,
+                        destroy: true,
+                        "aoColumnDefs": [{
+                                "bSortable": false,
+                                "aTargets": [0]
+                            },
+                            {
+                                "targets": [1],
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        ajax: {
+                            type: 'get',
+                            url: '{{ route('fetch_transactions_approver_modal') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
                         },
-                        {
-                            "targets": [1],
-                            "visible": false,
-                            "searchable": false
-                        }
-                    ],
-                    ajax: {
-                        type: 'get',
-                        url: '{{ route('fetch_transactions_approver_modal') }}',
-                        data: {
-                            transacNum,
-                            status,
-                            _token: '{{ csrf_token() }}'
-                        }
-                    },
-                    columns: [{
-                            data: null,
-                            render: DataTable.render.select(),
-                            className: 'selectedTools'
+                        columns: [{
+                                data: null,
+                                render: DataTable.render.select(),
+                                className: 'selectedTools'
+                            },
+                            {
+                                data: 'id'
+                            }, {
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'acc_mn'
+                            },
+                            {
+                                data: 'acc_cn'
+                            },
+                            {
+                                data: 'status'
+                            },
+                            {
+                                data: 'approver_status'
+                            }
+                        ],
+                        select: {
+                            style: 'multi+shift',
+                            selector: 'td'
                         },
-                        {
-                            data: 'id'
-                        }, {
-                            data: 'mobile_number'
-                        },
-                        {
-                            data: 'client_name'
-                        },
-                        {
-                            data: 'acc_mn'
-                        },
-                        {
-                            data: 'acc_cn'
-                        },
-                        {
-                            data: 'status'
-                        },
-                        {
-                            data: 'approver_status'
-                        }
-                    ],
-                    select: {
-                        style: 'multi+shift',
-                        selector: 'td'
-                    },
-                });
+                    });
+                }, 200);
+
                 modalTable.select.selector('td:first-child');
 
                 // $(".test").click()
@@ -188,7 +188,7 @@
                         $.each(rows, function() {
                             if ($(this).hasClass('bg-gray')) {
                                 modalTable.row($(this)).deselect();
-                                showToast("error","Cannot select declined transaction!");
+                                showToast("error", "Cannot select declined transaction!");
                             }
                         })
                     }
