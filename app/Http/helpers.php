@@ -2,9 +2,9 @@
 
 function add_public(){
     if(env("APP_ENV") != 'local'){
-     echo 'public';
+     return 'public';
     }else{
-        echo '';
+        return '';
     }
 }
 
