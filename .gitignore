@@ -1,0 +1,7 @@
+/vendor
+.env
+.env.backup
+.env.production
+.index.php
+/public.index.php
+.htaccess
