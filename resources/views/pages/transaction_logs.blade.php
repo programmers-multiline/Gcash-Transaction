@@ -51,6 +51,9 @@
         $(function() {
             const path = $("#path").val();
 
+            $(".twoClick").click();
+            $(".twoClick").click();
+
             const table = $("#table").DataTable({
                 processing: true,
                 serverSide: false,

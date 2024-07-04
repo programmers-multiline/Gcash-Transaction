@@ -73,6 +73,9 @@
     <script>
         $(function() {
 
+            $(".twoClick").click();
+            $(".twoClick").click();
+
             const path = $("#path").val();
 
             const table = $("#table").DataTable({

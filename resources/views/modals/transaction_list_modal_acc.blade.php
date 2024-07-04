@@ -25,7 +25,7 @@
                             <tr>
                                 <th id="selectedToolsContainer" style="padding-right: 10px;"></th>
                                 <th>Id</th>
-                                <th>Mobile Number</th>
+                                <th class="twoClick">Mobile Number</th>
                                 <th>Client Name</th>
                                 <th>Pension Type</th>
                                 <th>Pension Number</th>

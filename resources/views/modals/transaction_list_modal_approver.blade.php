@@ -30,7 +30,7 @@
                             <tr>
                                 <th id="selectedToolsContainer" style="padding-right: 10px;"></th>
                                 <th>Id</th>
-                                <th style="text-align: center;">Mobile Number</th>
+                                <th class="twoClick" style="text-align: center;">Mobile Number</th>
                                 <th style="text-align: center;">Client Name</th>
                                 <th style="text-align: center;">Mobile Number</th>
                                 <th style="text-align: center;">Client Name</th>
