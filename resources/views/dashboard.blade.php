@@ -5,7 +5,7 @@
         $user_type_id = Auth::user()->user_type_id;
     @endphp
     <!-- Page Content -->
-    <div class="content">
+    <div class="content d-none">
         @if ($user_type_id == 2)
             <div class="row">
                 <!-- Row #1 -->
