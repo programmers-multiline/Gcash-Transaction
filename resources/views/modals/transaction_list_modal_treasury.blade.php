@@ -21,7 +21,6 @@
                             <th>Pension Type</th>
                             <th>Pension Number</th>
                             <th>Amount</th>
-                            <th>status</th>
                         </tr>
                     </thead>
                     <tbody>

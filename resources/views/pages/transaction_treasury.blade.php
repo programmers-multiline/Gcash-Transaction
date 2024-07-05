@@ -152,9 +152,6 @@
                             {
                                 data: 'amount'
                             },
-                            {
-                                data: 'status'
-                            },
                         ],
                         dom: 'Bfrtip',
                         buttons: [{

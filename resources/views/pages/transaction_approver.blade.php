@@ -176,23 +176,23 @@
                             selector: 'td'
                         },
                     });
+                    modalTable.select.selector('td:first-child');
+    
+                    // $(".test").click()
+    
+                    modalTable.on('select', function(e, dt, type, indexes) {
+                        if (type === 'row') {
+                            var rows = modalTable.rows(indexes).nodes().to$();
+                            $.each(rows, function() {
+                                if ($(this).hasClass('bg-gray')) {
+                                    modalTable.row($(this)).deselect();
+                                    showToast("error", "Cannot select declined transaction!");
+                                }
+                            })
+                        }
+                    });
                 }, 200);
 
-                modalTable.select.selector('td:first-child');
-
-                // $(".test").click()
-
-                modalTable.on('select', function(e, dt, type, indexes) {
-                    if (type === 'row') {
-                        var rows = modalTable.rows(indexes).nodes().to$();
-                        $.each(rows, function() {
-                            if ($(this).hasClass('bg-gray')) {
-                                modalTable.row($(this)).deselect();
-                                showToast("error", "Cannot select declined transaction!");
-                            }
-                        })
-                    }
-                });
 
             });
 

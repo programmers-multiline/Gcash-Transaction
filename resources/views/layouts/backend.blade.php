@@ -8,6 +8,23 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
+    <meta name="description" content="Gcash-Portal for EverFirst">
+    <meta name="author" content="Astra">
+    <meta name="robots" content="index, follow">
+  
+    <!-- Open Graph Meta -->
+    <meta property="og:title" content="Online Approval for GCash Transaction">
+    <meta property="og:site_name" content="Gcash Transaction">
+    <meta property="og:description" content="Gcash transactions for Everfirst">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://phpstack-1258925-4698409.cloudwaysapps.com/">
+    <meta property="og:image" content="">
+  
+    <!-- Icons -->
+    <link rel="shortcut icon" href="{{ asset('public/media/favicons/favicon.png') }}">
+    <link rel="icon" sizes="192x192" type="image/png" href="{{ asset('media/favicons/ef_favicon.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('public/media/favicons/apple-touch-icon-180x180.png') }}">
+
     <title>Online Approval of Gcash Transaction</title>
 
 
@@ -151,7 +168,7 @@
                             @if ($user_type == 2)
                                 <li class="nav-main-item">
                                     <a class="nav-main-link{{ request()->is('pages/transactions') ? ' active' : '' }}"
-                                        href="pages/transactions">
+                                        href="/pages/transactions">
                                         <i class="nav-main-link-icon fa fa-money-bill-transfer"></i>
                                         <span class="nav-main-link-name">Gcash Transaction</span>
                                     </a>
@@ -424,8 +441,7 @@
         <!-- Main Container -->
         <main id="main-container">
             <div class="content">
-                <h2 class="{{ request()->is('pages/transaction_logs') ? 'text-success' : '' }}"
-                    style="margin-bottom: -10px;">@yield('content-title')</h2>
+                <h2 style="margin-bottom: -10px;">@yield('content-title')</h2>
             </div>
             @yield('content')
         </main>

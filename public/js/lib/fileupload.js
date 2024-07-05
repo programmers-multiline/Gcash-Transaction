@@ -21,7 +21,7 @@ $("#uploadTransactionForm").on("submit", function (e) {
         success: function (response) {
             $("#uploadTransaction").modal("hide");
             table.ajax.reload();
-            showToast("success", "TERS Uploaded");
+            showToast("success", "Transaction Uploaded");
             $("#transactionUpload").val('');
         },
     });

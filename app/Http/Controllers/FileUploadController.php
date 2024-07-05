@@ -51,6 +51,7 @@ class FileUploadController extends Controller
 
                 TransactionUploads::create([
                     'upload_id' => $uploads->id,
+                    'user_id' => Auth::user()->id,
                 ]);
 
 

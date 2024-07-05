@@ -242,8 +242,10 @@ class TransactionController extends Controller
             $transaction = Transactions::find($id);
             if ($request->path == "pages/transaction_approver") {
                 $transaction->approver_status = 1;
+                $transaction->approved_by = Auth::user()->id;
             } else {
                 $transaction->transaction_status = 'approved';
+                $transaction->acc_approver = Auth::user()->id;
             }
 
             $transaction->update();
@@ -295,8 +297,10 @@ class TransactionController extends Controller
             $transaction = Transactions::find($id);
             if ($request->path == "pages/transaction_approver") {
                 $transaction->approver_status = 2;
+                $transaction->approved_by = Auth::user()->id;
             } else {
                 $transaction->transaction_status = 'declined';
+                $transaction->acc_approver = Auth::user()->id;
             }
 
             $transaction->update();
