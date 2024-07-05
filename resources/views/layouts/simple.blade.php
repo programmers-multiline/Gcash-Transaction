@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-  <title>Tools and Equipment Monitoring System</title>
+  <title>Online Approval for GCash Transactions</title>
 
   <meta name="description" content="Gcash-Portal for EverFirst">
   <meta name="author" content="Astra">
