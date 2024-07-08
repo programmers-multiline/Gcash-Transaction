@@ -59,6 +59,19 @@
                     <a class="block block-rounded block-bordered block-link-shadow" href="javascript:void(0)">
                         <div class="block-content block-content-full d-sm-flex justify-content-between align-items-center">
                             <div class="d-none d-sm-block">
+                                <div class="fs-3 fw-semibold text-warning">{{ $pending_transactions }}</div>
+                                <div class="fs-xs fw-semibold text-uppercase text-muted">Total Pending Transactions</div>
+                            </div>
+                            <div class="text-end">
+                                <i class="fa fa-clock fa-2x text-warning"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-xl-3">
+                    <a class="block block-rounded block-bordered block-link-shadow" href="javascript:void(0)">
+                        <div class="block-content block-content-full d-sm-flex justify-content-between align-items-center">
+                            <div class="d-none d-sm-block">
                                 <div class="fs-3 fw-semibold text-primary">{{ $approved_transactions }}</div>
                                 <div class="fs-xs fw-semibold text-uppercase text-muted">Total Approved Transactions</div>
                             </div>

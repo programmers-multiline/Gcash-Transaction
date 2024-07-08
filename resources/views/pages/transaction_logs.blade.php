@@ -134,6 +134,7 @@
                         scrollX: true,
                         drawCallback: function() {
                             $(".receivedBtn").tooltip();
+                            $(".undoStatus i").hide();
                         }
                     });
                 }, 200);

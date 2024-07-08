@@ -20,7 +20,7 @@
                                 class="fa fa-xmark me-1"></i>Decline</button>
                     </div>
                     <table id="modalTable"
-                        class="table js-table-checkable fs-sm table-bordered table-hover table-vcenter w-100">
+                        class="table fs-sm table-bordered table-hover table-vcenter w-100">
                         <thead>
                             <tr>
                                 <th id="selectedToolsContainer" style="padding-right: 10px;"></th>

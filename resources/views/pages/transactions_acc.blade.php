@@ -186,9 +186,9 @@
                             selector: 'td'
                         },
                     });
+                    modalTable.select.selector('td:first-child');
                 }, 200);
 
-                modalTable.select.selector('td:first-child');
 
                 // $(".test").click()
 
@@ -287,6 +287,11 @@
                         }
                     })
                 })
+
+
+                // $(".undoStatus").click(function(){
+                //     alert()
+                // })
 
         })
     </script>

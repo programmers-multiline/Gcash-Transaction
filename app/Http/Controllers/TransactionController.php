@@ -21,7 +21,7 @@ class TransactionController extends Controller
         if ($request->path == "pages/transactions_acc") {
             $transactions = $transactions->where('transaction_infos.progress', 'pending');
         } elseif ($request->path == "pages/transaction_logs" || $request->path == "pages/transaction_treasury" || $request->path == "pages/transaction_approver") {
-            $transactions = $transactions->where('transaction_infos.progress', 'doned');
+            $transactions = $transactions->where('transaction_infos.progress', 'done');
             if (Auth::user()->user_type_id == 5) {
                 $transactions = $transactions->where('transaction_infos.approver_status', 1);
             }
@@ -57,7 +57,7 @@ class TransactionController extends Controller
             ->addColumn('status', function ($row) {
 
                 $progress = $row->progress;
-                if ($progress == 'doned') {
+                if ($progress == 'done') {
                     $progress = '<span class="badge bg-success">' . $progress . '</span>';
                 } else {
                     $progress =  '<span class="badge bg-warning">' . $progress . '</span>';
@@ -107,13 +107,36 @@ class TransactionController extends Controller
             ->addColumn('status', function ($row) {
 
                 $status = $row->transaction_status;
-                if ($status == 'approved') {
-                    $status = '<span class="badge bg-success">' . $status . '</span>';
-                } else if ($status == 'pending') {
-                    $status =  '<span class="badge bg-warning">' . $status . '</span>';
-                } else {
-                    $status =  '<span class="badge bg-danger">' . $status . '</span>';
+                if(Auth::user()->user_type_id == 2){
+
+                    if ($status == 'approved') {
+                        $status = '<span class="badge bg-success">' . $status . '</span>';
+                    } else if ($status == 'pending') {
+                        $status =  '<span class="badge bg-warning">' . $status . '</span>';
+                    } else {
+                        $status =  '<span class="badge bg-danger">' . $status . '</span>';
+                    }
                 }
+
+                if(Auth::user()->user_type_id == 3){
+                    if ($status == 'approved') {
+                    $status = '<div class="d-flex align-items-center gap-2">
+                    <span class="badge bg-success">' . $status . '</span>
+                    <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                    </div>';
+                    } else if ($status == 'pending') {
+                        $status = '<div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-warning">' . $status . '</span>
+                        <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                        </div>';
+                    } else {
+                        $status = '<div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-danger">' . $status . '</span>
+                        <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                        </div>';
+                    }
+                }
+
 
                 if (Auth::user()->user_type_id == 5) {
                     $status = $row->approver_status;
@@ -127,6 +150,28 @@ class TransactionController extends Controller
                 }
 
                 return $status;
+            })
+
+            ->addColumn('mobile_number', function ($row){
+
+                $transactions = Transactions::select('mobile_number', 'transaction_number')
+                ->groupBy(['mobile_number', 'transaction_number'])
+                ->havingRaw('COUNT(*) > 1')
+                ->get();
+
+                $duplicate_mn = $transactions->pluck('mobile_number')->toArray();
+
+                $is_duplicate = in_array($row->mobile_number, $duplicate_mn);
+
+                if($is_duplicate){
+                    return '<div class="ribbon ribbon-left ribbon-danger" style="min-height: unset;">
+                                <div class="ribbon-box" style="margin-top: -30px; margin-bottom: 5px; padding: .5px; height: 17px;"><p style="font-size: 10px;">Duplicate</p></div>
+                                    <p class="mb-0 mt-2">'.$row->mobile_number.'</p>
+                            </div>';
+                }else{
+                    return $row->mobile_number;
+                }
+                 
             })
 
             ->addColumn('total_number_approved', function ($row) {
@@ -152,7 +197,7 @@ class TransactionController extends Controller
                 return number_format($row->amount, 2);
             })
 
-            ->rawColumns(['status', 'total_number_approved', 'total_number_declined'])
+            ->rawColumns(['status', 'total_number_approved', 'total_number_declined', 'mobile_number'])
             ->toJson();
     }
 
@@ -282,7 +327,7 @@ class TransactionController extends Controller
 
             if (!$in_array) {
                 $ti = TransactionInfo::find($transaction->transaction_id);
-                $ti->progress = "doned";
+                $ti->progress = "done";
                 $ti->update();
             }
         }
@@ -334,7 +379,7 @@ class TransactionController extends Controller
 
             if (!$in_array) {
                 $ti = TransactionInfo::find($transaction->transaction_id);
-                $ti->progress = "doned";
+                $ti->progress = "done";
                 $ti->update();
             }
         }
@@ -346,7 +391,7 @@ class TransactionController extends Controller
         $transactions = TransactionInfo::leftjoin('users', 'users.id', 'transaction_infos.created_by')
             ->select('transaction_infos.*', 'users.firstname as fn', 'users.lastname as ln')
             ->where('transaction_infos.status', 1)
-            ->where('transaction_infos.progress', 'doned')
+            ->where('transaction_infos.progress', 'done')
             ->whereNull('transaction_infos.approver_status')
             ->where('users.status', 1)
             ->get();
@@ -380,7 +425,7 @@ class TransactionController extends Controller
 
                 $approver_status = $row->approver_status;
                 if ($approver_status == 1) {
-                    $approver_status = '<span class="badge bg-success">doned</span>';
+                    $approver_status = '<span class="badge bg-success">done</span>';
                 } else {
                     $approver_status =  '<span class="badge bg-warning">pending</span>';
                 }
