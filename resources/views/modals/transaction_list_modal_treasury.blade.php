@@ -18,9 +18,8 @@
                         <tr>
                             <th>Mobile Number</th>
                             <th>Client Name</th>
-                            <th>Pension Type</th>
-                            <th>Pension Number</th>
                             <th>Amount</th>
+                            <th>Remarks</th>
                         </tr>
                     </thead>
                     <tbody>

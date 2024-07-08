@@ -30,11 +30,5 @@ class UserController extends Controller
     
         return redirect('/');
     }
-
-    public function datatables(Request $request) {
-        $users = User::get();
-
-        return DataTables::of($users)->toJson();
-    }
     
 }

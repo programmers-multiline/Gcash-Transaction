@@ -23,6 +23,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/declined', [TransactionController::class, 'fetch_transactions_declined'])->name('fetch_transactions_declined');
     Route::get('/transactions/approver_modal', [TransactionController::class, 'fetch_transactions_approver_modal'])->name('fetch_transactions_approver_modal');
     Route::get('/transactions/approver', [TransactionController::class, 'fetch_transactions_approver'])->name('fetch_transactions_approver');
+    Route::post('/transactions/revert_status', [TransactionController::class, 'revert_status'])->name('revert_status');
 
     Route::get('/transactions/lists', [TransactionController::class, 'fetch_transaction_modal'])->name('fetch_transaction_modal');
 

@@ -34,7 +34,7 @@
         <div id="tableContainer" class="block block-rounded">
             <div class="block-content block-content-full overflow-x-auto">
                 <table id="table"
-                    class="table js-table-checkable fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
+                    class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -86,7 +86,7 @@
                     url: '{{ route('fetch_transactions') }}',
                     data: {
                         path,
-                        _token: '{{csrf_token()}}'
+                        _token: '{{ csrf_token() }}'
                     }
                 },
                 columns: [{
@@ -120,14 +120,14 @@
                 const transacNum = $(this).data("tn");
                 const status = $(this).data("status");
 
-                if(status){
+                if (status) {
                     $("#approveBtn").prop('disabled', true);
                     $("#declineBtn").prop('disabled', true);
-                }else{
+                } else {
                     $("#approveBtn").prop('disabled', false);
                     $("#declineBtn").prop('disabled', false);
                 }
-                
+
                 setTimeout(() => {
                     const modalTable = $("#modalTable").DataTable({
                         processing: true,
@@ -169,13 +169,10 @@
                                 data: 'client_name'
                             },
                             {
-                                data: 'pension_type'
-                            },
-                            {
-                                data: 'pension_number'
-                            },
-                            {
                                 data: 'amount'
+                            },
+                            {
+                                data: 'remarks'
                             },
                             {
                                 data: 'status'
@@ -185,6 +182,23 @@
                             style: 'multi+shift',
                             selector: 'td'
                         },
+                        drawCallback: function() {
+                            $(".undoStatus").click(function() {
+                                const id = $(this).data('id')
+
+                                $.ajax({
+                                url: '{{route('revert_status')}}',
+                                    method: 'post',
+                                    data: {
+                                        id,
+                                        _token: '{{ csrf_token() }}',
+                                    },
+                                    success(){
+                                        modalTable.ajax.reload()
+                                    }
+                                })
+                            });
+                        }
                     });
                     modalTable.select.selector('td:first-child');
                 }, 200);
@@ -194,104 +208,102 @@
 
             });
 
-                let data;
+            let data;
 
-                $(document).on("change", ".selectedTools", function() {
+            $(document).on("change", ".selectedTools", function() {
 
-                    data = modalTable.rows({
-                        selected: true
-                    }).data();
+                data = modalTable.rows({
+                    selected: true
+                }).data();
 
-                    console.log(data)
+                console.log(data)
 
+            })
+
+
+            $(document).on("click", "#approveBtn", function() {
+
+                data = $("#modalTable").DataTable().rows({
+                    selected: true
+                }).data();
+
+                if (data.length == 0) {
+                    showToast("error", "Select Item first!");
+                    return;
+                }
+
+                const ids = [];
+
+                for (var i = 0; i < data.length; i++) {
+
+                    const id = data[i].id
+
+                    ids.push(id)
+                }
+
+
+                const arrayToString = JSON.stringify(ids);
+
+                const table = $("#table").DataTable();
+                const modalTable = $("#modalTable").DataTable();
+
+                $.ajax({
+                    url: '{{ route('approve_transaction') }}',
+                    method: 'post',
+                    data: {
+                        idArray: arrayToString,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success() {
+                        table.ajax.reload();
+                        modalTable.ajax.reload();
+                        showToast("success", "Transaction Approved Success");
+                    }
                 })
+            })
+
+            $(document).on("click", "#declineBtn", function() {
+
+                data = $("#modalTable").DataTable().rows({
+                    selected: true
+                }).data();
+
+                if (data.length == 0) {
+                    showToast("error", "Select Item first!");
+                    return;
+                }
+
+                const ids = [];
+
+                for (var i = 0; i < data.length; i++) {
+
+                    const id = data[i].id
+
+                    ids.push(id)
+                }
 
 
-                $(document).on("click", "#approveBtn", function() {
+                const arrayToString = JSON.stringify(ids);
+                const table = $("#table").DataTable();
+                const modalTable = $("#modalTable").DataTable();
 
-                    data = $("#modalTable").DataTable().rows({
-                        selected: true
-                    }).data();
-
-                    if (data.length == 0) {
-                        showToast("error", "Select Item first!");
-                        return;
+                $.ajax({
+                    url: '{{ route('decline_transaction') }}',
+                    method: 'post',
+                    data: {
+                        idArray: arrayToString,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success() {
+                        table.ajax.reload();
+                        modalTable.ajax.reload();
+                        showToast("success", "Transaction Declined Success");
                     }
-
-                    const ids = [];
-
-                    for (var i = 0; i < data.length; i++) {
-
-                        const id = data[i].id
-
-                        ids.push(id)
-                    }
-
-
-                    const arrayToString = JSON.stringify(ids);
-
-                    const table = $("#table").DataTable();
-                    const modalTable = $("#modalTable").DataTable();
-
-                    $.ajax({
-                        url: '{{ route('approve_transaction') }}',
-                        method: 'post',
-                        data: {
-                            idArray: arrayToString,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success() {
-                            table.ajax.reload();
-                            modalTable.ajax.reload();
-                            showToast("success", "Transaction Approved Success");
-                        }
-                    })
                 })
-
-                $(document).on("click", "#declineBtn", function() {
-
-                    data = $("#modalTable").DataTable().rows({
-                        selected: true
-                    }).data();
-
-                    if (data.length == 0) {
-                        showToast("error", "Select Item first!");
-                        return;
-                    }
-
-                    const ids = [];
-
-                    for (var i = 0; i < data.length; i++) {
-
-                        const id = data[i].id
-
-                        ids.push(id)
-                    }
+            })
 
 
-                    const arrayToString = JSON.stringify(ids);
-                    const table = $("#table").DataTable();
-                    const modalTable = $("#modalTable").DataTable();
 
-                    $.ajax({
-                        url: '{{ route('decline_transaction') }}',
-                        method: 'post',
-                        data: {
-                            idArray: arrayToString,
-                            _token: "{{ csrf_token() }}"
-                        },
-                        success() {
-                            table.ajax.reload();
-                            modalTable.ajax.reload();
-                            showToast("success", "Transaction Declined Success");
-                        }
-                    })
-                })
-
-
-                // $(".undoStatus").click(function(){
-                //     alert()
-                // })
 
         })
     </script>

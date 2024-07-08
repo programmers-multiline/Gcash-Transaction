@@ -37,7 +37,7 @@
             <div class="block-content block-content-full overflow-x-auto">
                 <!-- DataTables functionality is initialized with .js-dataTable-responsive class in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
                 <table id="table"
-                    class="table js-table-checkable fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
+                    class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -141,16 +141,13 @@
                                 data: 'mobile_number'
                             },
                             {
-                                data: 'client_name'
-                            },
-                            {
-                                data: 'pension_type'
-                            },
-                            {
-                                data: 'pension_number'
+                                data: 'client_name', width: '30%'
                             },
                             {
                                 data: 'amount'
+                            },
+                            {
+                                data: 'remarks'
                             },
                         ],
                         dom: 'Bfrtip',
@@ -160,9 +157,30 @@
                             action: function(e, dt, ) {
                                 const currentDate = $("#currentDate").val();
                                 const copiedData = dt.buttons.exportData().body;
-                                const dataString = copiedData.map(row => row
-                                        .join('\t'))
-                                    .join('\n');
+                                
+
+                                const columnWidths = [];
+                                copiedData.forEach(row => {
+                                    row.forEach((cell, columnIndex) => {
+                                        const cellWidth = cell.length;
+                                        if (!columnWidths[columnIndex] || cellWidth > columnWidths[columnIndex]) {
+                                            columnWidths[columnIndex] = cellWidth;
+                                        }
+                                    });
+                                });
+
+                                // Pad each cell to match the maximum width
+                                const paddedData = copiedData.map(row => {
+                                    return row.map((cell, columnIndex) => {
+                                        const padding = ' '.repeat(columnWidths[columnIndex] - cell.length);
+                                        return cell + padding;
+                                    });
+                                });
+
+                                const dataString = paddedData.map(row => row.join('\t')).join('\n');
+
+
+
                                 const blob = new Blob([dataString], {
                                     type: 'text/plain'
                                 });

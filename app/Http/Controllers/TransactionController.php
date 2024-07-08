@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use App\Models\TransactionInfo;
+use Carbon\Carbon;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
 
@@ -122,17 +123,17 @@ class TransactionController extends Controller
                     if ($status == 'approved') {
                     $status = '<div class="d-flex align-items-center gap-2">
                     <span class="badge bg-success">' . $status . '</span>
-                    <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                    <button data-id="' . $row->id . '" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
                     </div>';
                     } else if ($status == 'pending') {
                         $status = '<div class="d-flex align-items-center gap-2">
                         <span class="badge bg-warning">' . $status . '</span>
-                        <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                        <button data-id="' . $row->id . '" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
                         </div>';
                     } else {
                         $status = '<div class="d-flex align-items-center gap-2">
                         <span class="badge bg-danger">' . $status . '</span>
-                        <button data-id="' . $row->id . '" data-bs-toggle="modal" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
+                        <button data-id="' . $row->id . '" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
                         </div>';
                     }
                 }
@@ -288,9 +289,11 @@ class TransactionController extends Controller
             if ($request->path == "pages/transaction_approver") {
                 $transaction->approver_status = 1;
                 $transaction->approved_by = Auth::user()->id;
+                $transaction->approver_date_approved_declined = Carbon::now();
             } else {
                 $transaction->transaction_status = 'approved';
                 $transaction->acc_approver = Auth::user()->id;
+                $transaction->acc_date_approved_declined = Carbon::now();
             }
 
             $transaction->update();
@@ -343,9 +346,11 @@ class TransactionController extends Controller
             if ($request->path == "pages/transaction_approver") {
                 $transaction->approver_status = 2;
                 $transaction->approved_by = Auth::user()->id;
+                $transaction->approver_date_approved_declined = Carbon::now();
             } else {
                 $transaction->transaction_status = 'declined';
                 $transaction->acc_approver = Auth::user()->id;
+                $transaction->acc_date_approved_declined = Carbon::now();
             }
 
             $transaction->update();
@@ -535,5 +540,14 @@ class TransactionController extends Controller
 
             ->rawColumns(['status', 'approver_status'])
             ->toJson();
+    }
+
+    public function revert_status(Request $request){
+        $transactions = Transactions::find($request->id);
+
+        $transactions->transaction_status = 'pending';
+        
+
+        $transactions->update();
     }
 };

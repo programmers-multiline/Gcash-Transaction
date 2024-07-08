@@ -98,8 +98,8 @@
                             <div class="block block-rounded">
                                 <div class="block-content">
                                     <div class="mb-4">
-                                        <label class="form-label" for="transactionUpload">Upload Transaction Here.</label>
-                                        <input class="form-control" type="file" name='importTransaction'
+                                        <label class="form-label" for="transactionUpload">Upload Transactions Here.</label>
+                                        <input class="form-control" type="file" name='importTransaction' accept=".csv, .xlsx, .xls"
                                             id="transactionUpload">
                                     </div>
                                 </div>
@@ -217,13 +217,10 @@
                                 data: 'client_name'
                             },
                             {
-                                data: 'pension_type'
-                            },
-                            {
-                                data: 'pension_number'
-                            },
-                            {
                                 data: 'amount'
+                            },
+                            {
+                                data: 'remarks'
                             },
                             {
                                 data: 'status'

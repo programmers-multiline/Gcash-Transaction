@@ -15,7 +15,7 @@
     <!-- Open Graph Meta -->
     <meta property="og:title" content="Online Approval for GCash Transaction">
     <meta property="og:site_name" content="Gcash Transaction">
-    <meta property="og:description" content="Gcash transactions for Everfirst">
+    <meta property="og:description" content="Gcash Portal transactions for Everfirst">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://phpstack-1258925-4698409.cloudwaysapps.com/">
     <meta property="og:image" content="">

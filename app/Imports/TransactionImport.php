@@ -28,9 +28,8 @@ class TransactionImport implements ToCollection
                     'transaction_number' => $transaction->transaction_number,
                     'mobile_number' => $row[0],
                     'client_name' => $row[1],
-                    'pension_type' => $row[2],
-                    'pension_number' => $row[3],
-                    'amount' => $row[4],
+                    'amount' => $row[2],
+                    'remarks' => $row[3],
                     'user_id' => Auth::user()->id,
                 ]);
             }
