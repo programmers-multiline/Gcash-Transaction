@@ -1,5 +1,21 @@
 @php
     $user_type = Auth::user()->user_type_id;
+    $path = request()->path();
+
+    $transactions_count_acc = App\Models\TransactionInfo::leftjoin('users', 'users.id', 'transaction_infos.created_by')
+            ->select('transaction_infos.*', 'users.firstname as fn', 'users.lastname as ln')
+            ->where('transaction_infos.status', 1)
+            ->where('users.status', 1)
+            ->where('transaction_infos.progress', 'pending')
+            ->count();
+
+            $transactions_count_approver = App\Models\TransactionInfo::leftjoin('users', 'users.id', 'transaction_infos.created_by')
+            ->select('transaction_infos.*', 'users.firstname as fn', 'users.lastname as ln')
+            ->where('transaction_infos.status', 1)
+            ->where('users.status', 1)
+            ->whereNull('transaction_infos.approver_status')
+            ->where('transaction_infos.progress', 'done')
+            ->count();
 @endphp
 <!doctype html>
 <html lang="{{ config('app.locale') }}">
@@ -11,19 +27,20 @@
     <meta name="description" content="Gcash-Portal for EverFirst">
     <meta name="author" content="Astra">
     <meta name="robots" content="index, follow">
-  
+
     <!-- Open Graph Meta -->
     <meta property="og:title" content="Online Approval for GCash Transaction">
     <meta property="og:site_name" content="Gcash Transaction">
-    <meta property="og:description" content="Gcash Portal transactions for Everfirst">
+    <meta property="og:description" content="Gcash transactions Portal for Everfirst">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://phpstack-1258925-4698409.cloudwaysapps.com/">
     <meta property="og:image" content="">
-  
+
     <!-- Icons -->
     <link rel="shortcut icon" href="{{ asset('public/media/favicons/favicon.png') }}">
     <link rel="icon" sizes="192x192" type="image/png" href="{{ asset('media/favicons/ef_favicon.png') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('public/media/favicons/apple-touch-icon-180x180.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180"
+        href="{{ asset('public/media/favicons/apple-touch-icon-180x180.png') }}">
 
     <title>Online Approval of Gcash Transaction</title>
 
@@ -166,17 +183,8 @@
                                 </a>
                             </li>
                             @if ($user_type == 2)
-                                <li class="nav-main-item">
-                                    <a class="nav-main-link{{ request()->is('pages/transactions') ? ' active' : '' }}"
-                                        href="/pages/transactions">
-                                        <i class="nav-main-link-icon fa fa-money-bill-transfer"></i>
-                                        <span class="nav-main-link-name">Gcash Transaction</span>
-                                    </a>
-                                </li>
-                            @endif
-                            @if ($user_type == 3)
                                 <li class="nav-main-item{{ request()->is('') ? ' open' : '' }}">
-                                    <a class="nav-main-link nav-main-link-submenu{{ request()->is('pages/transactions_acc', 'pages/transaction_logs') ? ' active' : '' }}"
+                                    <a class="nav-main-link nav-main-link-submenu{{ request()->is('pages/transactions', 'pages/transaction_logs') ? ' active' : '' }}"
                                         data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
                                         <i class="nav-main-link-icon fa fa-money-bill-transfer"></i>
                                         <span class="nav-main-link-name">
@@ -185,15 +193,40 @@
                                     </a>
                                     <ul class="nav-main-submenu">
                                         <li class="nav-main-item d-flex align-items-center justify-content-between">
+                                            <a class="nav-main-link{{ request()->is('pages/transactions') ? ' active' : '' }}"
+                                                href="/pages/transactions">
+                                                <span class="nav-main-link-name">Ongoing</span>
+                                            </a>
+                                        </li>
+                                        <li class="nav-main-item">
+                                            <a class="nav-main-link{{ request()->is('pages/transaction_logs') ? ' active' : '' }}"
+                                                href="/pages/transaction_logs">
+                                                <span class="nav-main-link-name">Transaction Logs</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            @endif
+                            @if ($user_type == 3)
+                                <li class="nav-main-item{{ request()->is('') ? ' open' : '' }}">
+                                    <a class="nav-main-link nav-main-link-submenu{{ request()->is('pages/transactions_acc', 'pages/transaction_logs') ? ' active' : '' }}"
+                                        data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
+                                        <i class="nav-main-link-icon fa fa-money-bill-transfer"></i>
+                                        <span class="nav-main-link-name">
+                                            Gcash Transaction<span class="countIndicator text-xl text-primary ms-1 {{ $transactions_count_acc == 0 ? 'd-none' : '' }}">•</span>
+                                        </span>
+                                    </a>
+                                    <ul class="nav-main-submenu">
+                                        <li class="nav-main-item d-flex align-items-center justify-content-between">
                                             <a class="nav-main-link{{ request()->is('pages/transactions_acc') ? ' active' : '' }}"
                                                 href="/pages/transactions_acc">
                                                 <span class="nav-main-link-name">For Approval</span>
                                             </a>
-                                            {{-- <span
-                                            class="countContainer nav-main-link text-light {{ $tool_approvers == 0 ? 'd-none' : '' }}"><span
-                                                id="rfteisCount" class="bg-info"
-                                                style="width: 20px; line-height: 20px; border-radius: 50%;text-align: center;">{{ $tool_approvers }}</span>
-                                        </span> --}}
+                                            <span
+                                            class="countContainer nav-main-link text-light {{ $transactions_count_acc == 0 ? 'd-none' : '' }}"><span
+                                                id="transactionCountAcc" class=" bg-info"
+                                                style="width: 20px; line-height: 20px; border-radius: 50%;text-align: center;">{{ $transactions_count_acc }}</span>
+                                        </span>
                                         </li>
                                         <li class="nav-main-item">
                                             <a class="nav-main-link{{ request()->is('pages/transaction_logs') ? ' active' : '' }}"
@@ -216,10 +249,11 @@
                             @if ($user_type == 5)
                                 <li class="nav-main-item{{ request()->is('') ? ' open' : '' }}">
                                     <a class="nav-main-link nav-main-link-submenu{{ request()->is('pages/transaction_approver', 'pages/transaction_logs') ? ' active' : '' }}"
-                                        data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="#">
+                                        data-toggle="submenu" aria-haspopup="true" aria-expanded="true"
+                                        href="#">
                                         <i class="nav-main-link-icon fa fa-money-bill-transfer"></i>
                                         <span class="nav-main-link-name">
-                                            Gcash Transaction
+                                            Gcash Transaction<span class="countIndicator text-xl text-primary ms-1 {{ $transactions_count_approver == 0 ? 'd-none' : '' }}">•</span>
                                         </span>
                                     </a>
                                     <ul class="nav-main-submenu">
@@ -228,11 +262,11 @@
                                                 href="/pages/transaction_approver">
                                                 <span class="nav-main-link-name">For Approval</span>
                                             </a>
-                                            {{-- <span
-                                            class="countContainer nav-main-link text-light {{ $tool_approvers == 0 ? 'd-none' : '' }}"><span
-                                                id="rfteisCount" class="bg-info"
-                                                style="width: 20px; line-height: 20px; border-radius: 50%;text-align: center;">{{ $tool_approvers }}</span>
-                                        </span> --}}
+                                            <span
+                                            class="countContainer nav-main-link text-light {{ $transactions_count_approver == 0 ? 'd-none' : '' }}"><span
+                                            id="transactionCountApprover" class="bg-info"
+                                                style="width: 20px; line-height: 20px; border-radius: 50%;text-align: center;">{{ $transactions_count_approver }}</span>
+                                        </span>
                                         </li>
                                         <li class="nav-main-item">
                                             <a class="nav-main-link{{ request()->is('pages/transaction_logs') ? ' active' : '' }}"

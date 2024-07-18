@@ -24,9 +24,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/transactions/approver_modal', [TransactionController::class, 'fetch_transactions_approver_modal'])->name('fetch_transactions_approver_modal');
     Route::get('/transactions/approver', [TransactionController::class, 'fetch_transactions_approver'])->name('fetch_transactions_approver');
     Route::post('/transactions/revert_status', [TransactionController::class, 'revert_status'])->name('revert_status');
-
+    Route::post('/upload_transaction_acc', [TransactionController::class, 'upload_transaction_acc'])->name('upload_transaction_acc');
+    Route::post('/upload_transaction_approver', [TransactionController::class, 'upload_transaction_approver'])->name('upload_transaction_approver');
+    
     Route::get('/transactions/lists', [TransactionController::class, 'fetch_transaction_modal'])->name('fetch_transaction_modal');
-
+    
     Route::post('upload_transaction', [FileUploadController::class, 'upload_transaction'])->name('upload_transaction');
 
     Route::view('/pages/transactions', 'pages.transactions');

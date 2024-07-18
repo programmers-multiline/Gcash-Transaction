@@ -33,8 +33,7 @@
     <div class="content">
         <div id="tableContainer" class="block block-rounded">
             <div class="block-content block-content-full overflow-x-auto">
-                <table id="table"
-                    class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
+                <table id="table" class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -120,6 +119,7 @@
                 const transacNum = $(this).data("tn");
                 const status = $(this).data("status");
 
+
                 if (status) {
                     $("#approveBtn").prop('disabled', true);
                     $("#declineBtn").prop('disabled', true);
@@ -187,20 +187,101 @@
                                 const id = $(this).data('id')
 
                                 $.ajax({
-                                url: '{{route('revert_status')}}',
+                                    url: '{{ route('revert_status') }}',
                                     method: 'post',
                                     data: {
                                         id,
                                         _token: '{{ csrf_token() }}',
                                     },
-                                    success(){
+                                    success() {
                                         modalTable.ajax.reload()
+                                        $("#modalTableAuto").DataTable()
+                                            .ajax.reload();
                                     }
                                 })
                             });
                         }
                     });
+                    $(".click").click();
+                    $(".click").click();
+                    $(".click").click();
                     modalTable.select.selector('td:first-child');
+
+                    const transactionNumber = $("#transactionNumber").val(transacNum)
+
+                    const modalTableAuto = $("#modalTableAuto").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        searchable: true,
+                        pagination: true,
+                        destroy: true,
+                        "aoColumnDefs": [{
+                                "bSortable": false,
+                                "aTargets": [0]
+                            },
+                            {
+                                "targets": [0],
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        ajax: {
+                            type: 'post',
+                            url: '{{ route('upload_transaction_acc') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
+                        },
+                        columns: [{
+                                data: 'id'
+                            },
+                            {
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'amount'
+                            },
+                            {
+                                data: 'acc_mn'
+                            },
+                            {
+                                data: 'acc_cn'
+                            },
+                            {
+                                data: 'acc_amount'
+                            },
+                            {
+                                data: 'upload_status'
+                            },
+                            {
+                                data: 'status',
+                                className: 'state',
+                            },
+                        ],
+                        drawCallback: function() {
+                            $(".undoStatus").click(function() {
+                                const id = $(this).data('id')
+
+                                $.ajax({
+                                    url: '{{ route('revert_status') }}',
+                                    method: 'post',
+                                    data: {
+                                        id,
+                                        _token: '{{ csrf_token() }}',
+                                    },
+                                    success() {
+                                        modalTableAuto.ajax.reload()
+                                    }
+                                })
+                            });
+                        }
+                    });
+
                 }, 200);
 
 
@@ -247,6 +328,8 @@
                 const table = $("#table").DataTable();
                 const modalTable = $("#modalTable").DataTable();
 
+                const transactionCountAcc = parseInt($("#transactionCountAcc").text());
+
                 $.ajax({
                     url: '{{ route('approve_transaction') }}',
                     method: 'post',
@@ -254,15 +337,33 @@
                         idArray: arrayToString,
                         _token: "{{ csrf_token() }}"
                     },
-                    success() {
+                    success(response) {
+                        const transactionStatus = $.map(response, function(res) {
+                            return res.transaction_status;
+                        });
+
+                        const pending = transactionStatus.includes("pending")
+
+                        if (!pending) {
+                            if (transactionCountAcc == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountAcc").text(transactionCountAcc - 1);
+                            }
+                        }
+
                         table.ajax.reload();
                         modalTable.ajax.reload();
+                        $("#modalTableAuto").DataTable().ajax.reload();
                         showToast("success", "Transaction Approved Success");
                     }
                 })
             })
 
             $(document).on("click", "#declineBtn", function() {
+
+                const transactionCountAcc = parseInt($("#transactionCountAcc").text());
 
                 data = $("#modalTable").DataTable().rows({
                     selected: true
@@ -294,9 +395,24 @@
                         idArray: arrayToString,
                         _token: "{{ csrf_token() }}"
                     },
-                    success() {
+                    success(response) {
+                        const transactionStatus = $.map(response, function(res) {
+                            return res.transaction_status;
+                        });
+
+                        const pending = transactionStatus.includes("pending")
+
+                        if (!pending) {
+                            if (transactionCountAcc == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountAcc").text(transactionCountAcc - 1);
+                            }
+                        }
                         table.ajax.reload();
                         modalTable.ajax.reload();
+                        $("#modalTableAuto").DataTable().ajax.reload();
                         showToast("success", "Transaction Declined Success");
                     }
                 })
@@ -305,6 +421,63 @@
 
 
 
+        })
+    </script>
+
+    <script src="{{ asset('js\lib\fileupload.js') }}"></script>
+    <script>
+        $(function() {
+            $("#approveBtnAuto").click(function() {
+                const data = $("#modalTableAuto").DataTable().rows().data();
+                const transactionCountAcc = parseInt($("#transactionCountAcc").text());
+
+                const ids = [];
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].acc_mn && data[i].mobile_number) {
+                        ids.push(data[i].id);
+                    }
+                }
+
+                const arrayToString = JSON.stringify(ids);
+
+                $.ajax({
+                    url: '{{ route('approve_transaction') }}',
+                    method: "post",
+                    data: {
+                        idArray: arrayToString,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success(response) {
+
+                        const transactionStatus = $.map(response, function(res) {
+                            return res.transaction_status;
+                        });
+
+                        const pending = transactionStatus.includes("pending")
+
+                        if (!pending) {
+                            if (transactionCountAcc == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountAcc").text(transactionCountAcc - 1);
+                            }
+                        }
+
+                        $("#table").DataTable().ajax.reload();
+                        $("#modalTable").DataTable().ajax.reload();
+                        showToast("success", "Transaction Approved Success");
+
+                        $(".state span").each(function() {
+                            if ($(this).text() == 'pending') {
+                                $(this).text('approved')
+                                $(this).removeClass('bg-warning')
+                                $(this).addClass('bg-success')
+                            }
+                        })
+                    },
+                });
+            });
         })
     </script>
 @endsection

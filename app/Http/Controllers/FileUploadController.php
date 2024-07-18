@@ -12,6 +12,7 @@ use App\Models\TransactionUploads;
 use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Facades\Excel as ExcelFacade;
 use Maatwebsite\Excel\Excel;
+use App\Imports\AccTransactionImport;
 
 class FileUploadController extends Controller
 {
@@ -66,6 +67,31 @@ class FileUploadController extends Controller
             } else {
 
             }
+        }
+    }
+
+    public function upload_transaction_acc(Request $request)
+    {
+
+        if ($request->hasFile('importTransaction')) {
+
+            $transaction = $request->file('importTransaction');
+
+            // $transaction_name = mt_rand(111111, 999999) . date('YmdHms') . '.' . $transaction->extension();
+            // $request->file('importTransaction')->storeAs('uploads/transactions', $transaction_name);
+
+            $fileExtension = $transaction->getClientOriginalExtension();
+
+            if ($fileExtension === 'xlsx') {
+                $excel = ExcelFacade::toArray(new AccTransactionImport, $transaction, Excel::XLSX);
+            } elseif ($fileExtension === 'xls') {
+                $excel = ExcelFacade::toArray(new AccTransactionImport, $transaction, Excel::XLS);
+            } else {
+                $excel = ExcelFacade::toArray(new AccTransactionImport, $transaction);
+            }
+
+            return $excel;
+
         }
     }
 }

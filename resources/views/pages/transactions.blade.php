@@ -78,7 +78,7 @@
 
     {{-- modal upload transaction --}}
 
-    <div class="modal fade" id="uploadTransaction" tabindex="-1" role="dialog" aria-labelledby="modal-popin"
+    <div class="modal fade" id="uploadTransaction" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="modal-popin"
         aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-fromleft" role="document">
             <div class="modal-content">
@@ -155,6 +155,8 @@
     <script>
         $(function() {
 
+            const path = $("#path").val();
+
             const table = $("#table").DataTable({
                 processing: true,
                 serverSide: false,
@@ -163,7 +165,11 @@
                 destroy: true,
                 ajax: {
                     type: 'get',
-                    url: '{{ route('fetch_transactions') }}'
+                    url: '{{ route('fetch_transactions') }}',
+                    data: {
+                        path,
+                        _token: '{{ csrf_token() }}'
+                    }
                 },
                 columns: [{
                         data: 'view_transaction_lists'

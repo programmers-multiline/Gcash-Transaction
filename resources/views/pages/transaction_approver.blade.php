@@ -27,8 +27,7 @@
         <div id="tableContainer" class="block block-rounded">
             <div class="block-content block-content-full overflow-x-auto">
                 <!-- DataTables functionality is initialized with .js-dataTable-responsive class in js/pages/be_tables_datatables.min.js which was auto compiled from _js/pages/be_tables_datatables.js -->
-                <table id="table"
-                    class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
+                <table id="table" class="table fs-sm table-bordered hover table-vcenter js-dataTable-responsive">
                     <thead>
                         <tr>
                             <th>Action</th>
@@ -177,20 +176,99 @@
                         },
                     });
                     modalTable.select.selector('td:first-child');
-    
+
                     // $(".test").click()
-    
+
                     modalTable.on('select', function(e, dt, type, indexes) {
                         if (type === 'row') {
                             var rows = modalTable.rows(indexes).nodes().to$();
                             $.each(rows, function() {
                                 if ($(this).hasClass('bg-gray')) {
                                     modalTable.row($(this)).deselect();
-                                    showToast("error", "Cannot select declined transaction!");
+                                    showToast("error",
+                                        "Cannot select declined transaction!");
                                 }
                             })
                         }
                     });
+
+                    const transactionNumber = $("#transactionNumber").val(transacNum)
+
+                    const modalTableAuto = $("#modalTableAuto").DataTable({
+                        processing: true,
+                        serverSide: false,
+                        searchable: true,
+                        pagination: true,
+                        destroy: true,
+                        "aoColumnDefs": [{
+                                "bSortable": false,
+                                "aTargets": [0]
+                            },
+                            {
+                                "targets": [0],
+                                "visible": false,
+                                "searchable": false
+                            }
+                        ],
+                        ajax: {
+                            type: 'post',
+                            url: '{{ route('upload_transaction_approver') }}',
+                            data: {
+                                transacNum,
+                                status,
+                                _token: '{{ csrf_token() }}'
+                            }
+                        },
+                        columns: [{
+                                data: 'id'
+                            },
+                            {
+                                data: 'mobile_number'
+                            },
+                            {
+                                data: 'client_name'
+                            },
+                            {
+                                data: 'acc_mn'
+                            },
+                            {
+                                data: 'acc_cn'
+                            },
+                            {
+                                data: 'acc_status'
+                            },
+                            {
+                                data: 'approver_mn'
+                            },
+                            {
+                                data: 'approver_cn'
+                            },
+                            {
+                                data: 'upload_status'
+                            },
+                            {
+                                data: 'approver_status'
+                            },
+                        ],
+                        drawCallback: function() {
+                            $(".undoStatus").click(function() {
+                                const id = $(this).data('id')
+
+                                $.ajax({
+                                    url: '{{ route('revert_status') }}',
+                                    method: 'post',
+                                    data: {
+                                        id,
+                                        _token: '{{ csrf_token() }}',
+                                    },
+                                    success() {
+                                        modalTableAuto.ajax.reload()
+                                    }
+                                })
+                            });
+                        }
+                    });
+
                 }, 200);
 
 
@@ -235,6 +313,8 @@
                 const table = $("#table").DataTable();
                 const modalTable = $("#modalTable").DataTable();
 
+                const transactionCountApprover = parseInt($("#transactionCountApprover").text());
+
                 $.ajax({
                     url: '{{ route('approve_transaction') }}',
                     method: 'post',
@@ -243,7 +323,21 @@
                         idArray: arrayToString,
                         _token: "{{ csrf_token() }}"
                     },
-                    success() {
+                    success(response) {
+
+
+                        const pending = response.includes(null)
+
+
+                        if (!pending) {
+                            if (transactionCountApprover == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountApprover").text(transactionCountApprover - 1);
+                            }
+                        }
+
                         table.ajax.reload();
                         modalTable.ajax.reload();
                         showToast("success", "Transaction Approved Success");
@@ -279,6 +373,8 @@
                 const table = $("#table").DataTable();
                 const modalTable = $("#modalTable").DataTable();
 
+                const transactionCountApprover = parseInt($("#transactionCountApprover").text());
+
                 $.ajax({
                     url: '{{ route('decline_transaction') }}',
                     method: 'post',
@@ -287,7 +383,20 @@
                         idArray: arrayToString,
                         _token: "{{ csrf_token() }}"
                     },
-                    success() {
+                    success(response) {
+
+                        const pending = response.includes(null)
+
+
+                        if (!pending) {
+                            if (transactionCountApprover == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountApprover").text(transactionCountApprover - 1);
+                            }
+                        }
+
                         table.ajax.reload();
                         modalTable.ajax.reload();
                         showToast("success", "Transaction Declined Success");
@@ -295,5 +404,61 @@
                 })
             })
         })
+    </script>   
+    <script src="{{ asset('js\lib\fileupload.js') }}"></script>
+    <script>
+         $("#approveBtnAuto").click(function() {
+                const path = $("#path").val();
+                const data = $("#modalTableAuto").DataTable().rows().data();
+                const transactionCountApprover = parseInt($("#transactionCountApprover").text());
+
+                const ids = [];
+                for (let i = 0; i < data.length; i++) {
+                    if (data[i].acc_mn && data[i].mobile_number && data[i].approver_mn) {
+                        ids.push(data[i].id);
+                    }
+                }
+
+                const arrayToString = JSON.stringify(ids);
+
+                $.ajax({
+                    url: '{{ route('approve_transaction') }}',
+                    method: "post",
+                    data: {
+                        idArray: arrayToString,
+                        path,
+                        _token: "{{ csrf_token() }}",
+                    },
+                    success(response) {
+
+                        // const transactionStatus = $.map(response, function(res) {
+                        //     return res.transaction_status;
+                        // });
+
+                        const pending = response.includes("pending")
+
+                        if (!pending) {
+                            if (transactionCountApprover == 1) {
+                                $(".countContainer").addClass("d-none")
+                                $(".countIndicator").addClass("d-none")
+                            } else {
+                                $("#transactionCountApprover").text(transactionCountApprover - 1);
+                            }
+                        }
+
+                        $("#table").DataTable().ajax.reload();
+                        $("#modalTable").DataTable().ajax.reload();
+                        showToast("success", "Transaction Approved Success");
+
+                        $(".uploadStatus").each(function() {
+                            if ($(this).text() == 'pending') {
+                                $(this).text('approved')
+                                $(this).removeClass('bg-warning')
+                                $(this).addClass('bg-success')
+                            }
+                        })
+                    },
+                });
+            });
     </script>
 @endsection
