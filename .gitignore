@@ -9,3 +9,4 @@
 config/app.php
 /config
 public/build/assets/main-dd9d7536.css
+public/uploads/transactions

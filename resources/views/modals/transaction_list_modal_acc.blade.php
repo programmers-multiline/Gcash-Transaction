@@ -23,10 +23,10 @@
                                     aria-controls="btabs-animated-fade-home" aria-selected="false" tabindex="-1">Manual
                                     Approve</button>
                             </li>
-                            <li class="nav-item" role="presentation">
+                            <li class="nav-item" data-bs-toggle="tooltip" aria-label="Not available right now" data-bs-original-title="Not available right now" role="presentation">
                                 <button class="nav-link" id="btabs-animated-fade-profile-tab" data-bs-toggle="tab"
                                     data-bs-target="#btabs-animated-fade-profile" role="tab"
-                                    aria-controls="btabs-animated-fade-profile" aria-selected="true">Auto
+                                    aria-controls="btabs-animated-fade-profile" disabled aria-selected="true">Auto
                                     Approve</button>
                             </li>
                         </ul>
@@ -51,6 +51,7 @@
                                         <tr>
                                             <th id="selectedToolsContainer" style="padding-right: 10px;"></th>
                                             <th>Id</th>
+                                            <th>Branch</th>
                                             <th class="click">Mobile Number</th>
                                             <th>Client Name</th>
                                             <th>Amount</th>

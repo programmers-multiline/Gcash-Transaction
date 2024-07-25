@@ -3,12 +3,15 @@
 namespace App\Http\Controllers;
 
 use Carbon\Carbon;
+use App\Models\User;
+use App\Mail\NotifyTreasury;
 use App\Models\Transactions;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use App\Models\TransactionInfo;
 use Yajra\DataTables\DataTables;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Imports\AccTransactionImport;
 use App\Models\AccTransactionListUploads;
 use App\Imports\ApproverTransactionImport;
@@ -96,7 +99,8 @@ class TransactionController extends Controller
 
         if ($request->status) {
             $transactions = Transactions::leftjoin('transaction_infos', 'transaction_infos.id', 'transactions.transaction_id')
-                ->select('transactions.*')
+                ->leftjoin('google_form_responses','google_form_responses.client_id','transactions.client_id')
+                ->select('transactions.*', 'google_form_responses.gcash_number', 'google_form_responses.branch_name')
                 ->where('transaction_infos.transaction_number', $request->transacNum)
                 ->where('transactions.transaction_status', $request->status)
                 ->where('transaction_infos.status', 1)
@@ -104,7 +108,8 @@ class TransactionController extends Controller
                 ->get();
         } else {
             $transactions = Transactions::leftjoin('transaction_infos', 'transaction_infos.id', 'transactions.transaction_id')
-                ->select('transactions.*')
+                ->leftjoin('google_form_responses','google_form_responses.client_id','transactions.client_id')
+                ->select('transactions.*', 'google_form_responses.gcash_number', 'google_form_responses.branch_name')
                 ->where('transaction_infos.transaction_number', $request->transacNum)
                 ->where('transaction_infos.status', 1)
                 ->where('transactions.status', 1)
@@ -119,6 +124,8 @@ class TransactionController extends Controller
 
                     if ($status == 'approved') {
                         $status = '<span class="badge bg-success">' . $status . '</span>';
+                    } else if (!$row->gcash_number) {
+                        $status =  '<span class="badge bg-elegance">no client id</span>';
                     } else if ($status == 'pending') {
                         $status =  '<span class="badge bg-warning">' . $status . '</span>';
                     } else {
@@ -132,7 +139,11 @@ class TransactionController extends Controller
                     <span class="badge bg-success">' . $status . '</span>
                     <button data-id="' . $row->id . '" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
                     </div>';
-                    } else if ($status == 'pending') {
+                    } else if (!$row->gcash_number) {
+                        $status =  '<div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-elegance">no client id</span>
+                        </div>';
+                    }  else if ($status == 'pending') {
                         $status = '<div class="d-flex align-items-center gap-2">
                         <span class="badge bg-warning">' . $status . '</span>
                         <button data-id="' . $row->id . '" class="undoStatus btn text-elegance fs-6 d-block"><i class="fa fa-arrow-rotate-left"></i></button>
@@ -162,23 +173,25 @@ class TransactionController extends Controller
 
             ->addColumn('mobile_number', function ($row) {
 
-                $transactions = Transactions::select('mobile_number', 'transaction_number')
-                    ->groupBy(['mobile_number', 'transaction_number'])
-                    ->havingRaw('COUNT(*) > 1')
-                    ->get();
+                return $row->gcash_number;
 
-                $duplicate_mn = $transactions->pluck('mobile_number')->toArray();
+                // $transactions = Transactions::select('mobile_number', 'transaction_number')
+                //     ->groupBy(['mobile_number', 'transaction_number'])
+                //     ->havingRaw('COUNT(*) > 1')
+                //     ->get();
 
-                $is_duplicate = in_array($row->mobile_number, $duplicate_mn);
+                // $duplicate_mn = $transactions->pluck('mobile_number')->toArray();
 
-                if ($is_duplicate) {
-                    return '<div class="ribbon ribbon-left ribbon-danger" style="min-height: unset;">
-                                <div class="ribbon-box" style="margin-top: -30px; margin-bottom: 5px; padding: .5px; height: 17px;"><p style="font-size: 10px;">Duplicate</p></div>
-                                    <p class="mb-0 mt-2">' . $row->mobile_number . '</p>
-                            </div>';
-                } else {
-                    return $row->mobile_number;
-                }
+                // $is_duplicate = in_array($row->mobile_number, $duplicate_mn);
+
+                // if ($is_duplicate) {
+                //     return '<div class="ribbon ribbon-left ribbon-danger" style="min-height: unset;">
+                //                 <div class="ribbon-box" style="margin-top: -30px; margin-bottom: 5px; padding: .5px; height: 17px;"><p style="font-size: 10px;">Duplicate</p></div>
+                //                     <p class="mb-0 mt-2">' . $row->mobile_number . '</p>
+                //             </div>';
+                // } else {
+                //     return $row->mobile_number;
+                // }
             })
 
             ->addColumn('total_number_approved', function ($row) {
@@ -200,8 +213,15 @@ class TransactionController extends Controller
                 return '<button data-status="declined" data-tn="' . $row->transaction_number . '" data-bs-toggle="modal" data-bs-target="#transactionListsModal" class="viewTransaction btn text-primary fs-6 d-block me-auto">' . $total_declined . '</button>';;
             })
 
+            ->setRowClass(function ($row) {
+
+                $no_client_id = $row->gcash_number ? '' : 'bg-gray';
+
+                return $no_client_id;
+            })
+
             ->addColumn('amount', function ($row) {
-                return number_format($row->amount, 2);
+                return number_format($row->amount_deducted, 2);
             })
 
             ->rawColumns(['status', 'total_number_approved', 'total_number_declined', 'mobile_number'])
@@ -214,16 +234,20 @@ class TransactionController extends Controller
     public function fetch_transactions_approved(Request $request)
     {
         $transactions_approved = TransactionInfo::leftjoin('transactions', 'transactions.transaction_id', 'transaction_infos.id')
-            ->select('transactions.*')
+            ->leftjoin('google_form_responses as gfr','gfr.client_id','transactions.client_id')
+            ->select('transactions.*', 'gfr.gcash_number', 'gfr.gcash_name', 'gfr.branch_name')
             ->where('transactions.status', 1)
+            ->where('gfr.status', 1)
             ->where('transaction_infos.status', 1)
             ->where('transaction_status', 'approved')
             ->where('transactions.transaction_number', $request->transacNum);
 
         if ($request->status) {
             $transactions_approved = TransactionInfo::leftjoin('transactions', 'transactions.transaction_id', 'transaction_infos.id')
-                ->select('transactions.*')
+                ->leftjoin('google_form_responses as gfr','gfr.client_id','transactions.client_id')
+                ->select('transactions.*', 'gfr.gcash_number', 'gfr.gcash_name', 'gfr.branch_name')
                 ->where('transactions.status', 1)
+                ->where('gfr.status', 1)
                 ->where('transaction_infos.status', 1)
                 ->where('transaction_status', $request->status)
                 ->where('transactions.transaction_number', $request->transacNum);
@@ -251,7 +275,7 @@ class TransactionController extends Controller
             })
 
             ->addColumn('amount', function ($row) {
-                return number_format($row->amount, 2);
+                return number_format($row->amount_deducted, 2);
             })
 
             ->rawColumns(['status'])
@@ -334,13 +358,19 @@ class TransactionController extends Controller
             $transaction_status = collect($transac)->pluck('transaction_status')->toArray();
 
 
-            $in_array = in_array('pending', $transaction_status);
+            $in_array = in_array('pending', $transaction_status) || in_array('declined', $transaction_status);
 
             if (!$in_array) {
                 $ti = TransactionInfo::find($transaction->transaction_id);
                 $ti->progress = "done";
                 $ti->update();
             }
+
+            // $user = User::where('status', 1)->where('user_type_id', 4)->first();
+
+            // $mail_data = [];
+
+            // Mail::to($user->email)->send(new NotifyTreasury($mail_data));
 
             return $transac;
         }
@@ -392,7 +422,7 @@ class TransactionController extends Controller
             $transaction_status = collect($transac)->pluck('transaction_status')->toArray();
 
 
-            $in_array = in_array('pending', $transaction_status);
+            $in_array = in_array('pending', $transaction_status) || in_array('declined', $transaction_status);
 
             if (!$in_array) {
                 $ti = TransactionInfo::find($transaction->transaction_id);

@@ -33,7 +33,7 @@ $(function () {
                 $("#table").DataTable().ajax.reload()
                 // $("#modalTableAuto").DataTable().ajax.reload();
                 // $("#modalTableAuto").DataTable().clear().draw();
-                // $("#uploadTransaction").modal("hide");
+                $("#uploadTransaction").modal("hide");
 
                 showToast("success", "Transaction Uploaded");
                 $("#transactionUpload").val('');

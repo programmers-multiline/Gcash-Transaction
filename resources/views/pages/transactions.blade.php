@@ -217,6 +217,9 @@
     
                         },
                         columns: [{
+                                data: 'branch_name'
+                            },
+                            {
                                 data: 'mobile_number'
                             },
                             {

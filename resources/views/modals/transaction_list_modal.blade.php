@@ -16,6 +16,7 @@
                         class="table fs-sm table-bordered table-hover table-vcenter w-100">
                         <thead>
                             <tr>
+                                <th>Branch</th>
                                 <th>Mobile Number</th>
                                 <th>Client Name</th>
                                 <th>Amount</th>

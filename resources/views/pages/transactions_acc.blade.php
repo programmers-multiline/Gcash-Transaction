@@ -163,6 +163,9 @@
                                 data: 'id'
                             },
                             {
+                                data: 'branch_name'
+                            },
+                            {
                                 data: 'mobile_number'
                             },
                             {
@@ -200,6 +203,8 @@
                                     }
                                 })
                             });
+
+                            $('[data-toggle="tooltip"]').tooltip();
                         }
                     });
                     $(".click").click();

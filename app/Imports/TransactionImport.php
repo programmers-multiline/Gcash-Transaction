@@ -26,9 +26,10 @@ class TransactionImport implements ToCollection
                 Transactions::create([
                     'transaction_id' => $transaction->id,
                     'transaction_number' => $transaction->transaction_number,
-                    'mobile_number' => $row[0],
+                    'client_id' => $row[0],
                     'client_name' => $row[1],
                     'amount' => $row[2],
+                    'amount_deducted' => $row[2] > 5 ? $row[2] - 5 : 0,
                     'remarks' => $row[3],
                     'user_id' => Auth::user()->id,
                 ]);

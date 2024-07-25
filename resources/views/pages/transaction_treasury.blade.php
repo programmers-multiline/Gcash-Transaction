@@ -20,8 +20,8 @@
             display: none;
         }
 
-        .filepond--credits {
-            display: none;
+        .dt-search{
+            margin-bottom: 10px;
         }
     </style>
 @endsection
@@ -138,10 +138,13 @@
 
                         },
                         columns: [{
-                                data: 'mobile_number'
+                                data: 'branch_name'
                             },
                             {
-                                data: 'client_name', width: '30%'
+                                data: 'gcash_number'
+                            },
+                            {
+                                data: 'gcash_name', width: '30%'
                             },
                             {
                                 data: 'amount'
@@ -186,7 +189,7 @@
                                 });
                                 const a = document.createElement('a');
                                 a.href = URL.createObjectURL(blob);
-                                a.download = currentDate + '.txt';
+                                a.download = "Gcash Transactions ("+ currentDate + ').txt';
                                 a.click();
                                 URL.revokeObjectURL(a.href);
                             }

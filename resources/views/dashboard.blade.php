@@ -52,7 +52,7 @@
                 <!-- END Row #1 -->
             </div>
         @endif
-        @if ( $user_type_id == 3 || $user_type_id == 5)
+        @if ( $user_type_id == 3 || $user_type_id == 4 || $user_type_id == 5)
             <div class="row">
                 <!-- Row #1 -->
                 <div class="col-6 col-xl-3">
