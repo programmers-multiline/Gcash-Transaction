@@ -303,7 +303,7 @@
 
                     <!-- Open Search Section -->
                     <!-- Layout API, functionality initialized in Template._uiApiLayout() -->
-                    <button type="button" class="btn btn-sm btn-alt-secondary" data-toggle="layout"
+                    <button type="button" class="btn btn-sm btn-alt-secondary d-none" data-toggle="layout"
                         data-action="header_search_on" data-bs-toggle="modal" data-bs-target="#search">
                         <i class="fa fa-fw fa-search"></i>
                     </button>
@@ -348,7 +348,7 @@
 
                     <!-- Notifications -->
                     <div class="dropdown d-inline-block">
-                        <button type="button" class="btn btn-sm btn-alt-secondary" id="page-header-notifications"
+                        <button type="button" class="btn btn-sm btn-alt-secondary d-none" id="page-header-notifications"
                             data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             <i class="fa fa-bell animated swing loop"></i>
                             <span class="text-xl text-primary">&bull;</span>
@@ -549,13 +549,13 @@
     <script src="{{ asset('js/plugins/datatables-responsive/js/dataTables.responsive.min.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables-responsive-bs5/js/responsive.bootstrap5.min.js') }}"></script>
     <script src="{{ asset('js/plugins/sweetalert2/sweetalert2.min.js') }}"></script>
-    {{-- <script src="{{asset('js/plugins/datatables-buttons/dataTables.buttons.min.js')}}"></script>
+    <script src="{{asset('js/plugins/datatables-buttons/dataTables.buttons.min.js')}}"></script>
   <script src="{{asset('js/plugins/datatables-buttons-bs5/js/buttons.bootstrap5.min.js')}}"></script>
   <script src="{{asset('js/plugins/datatables-buttons-jszip/jszip.min.js')}}"></script>
   <script src="{{asset('js/plugins/datatables-buttons-pdfmake/pdfmake.min.js')}}"></script>
   <script src="{{asset('js/plugins/datatables-buttons-pdfmake/vfs_fonts.js')}}"></script>
   <script src="{{asset('js/plugins/datatables-buttons/buttons.print.min.js')}}"></script>
-  <script src="{{asset('js/plugins/datatables-buttons/buttons.html5.min.js')}}"></script> --}}
+  <script src="{{asset('js/plugins/datatables-buttons/buttons.html5.min.js')}}"></script>
     {{-- <script src="{{asset('js/codebase.app.min.js')}}"></script> --}}
 
     <script>

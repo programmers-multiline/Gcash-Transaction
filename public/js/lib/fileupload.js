@@ -23,6 +23,11 @@ $(function () {
             cache: false,
             data: form_data,
             success: function (response) {
+                if($("#path").val() == 'pages/transactions' && response){
+                    showToast("error", `It seems that <span class="text-danger">${response}</span>'s client ID doesn’t  exist in the Master List. <div style="font-size: 12px; margin-top: 10px; font-weight: bolder;">Add it through Google Form.</div>`);  
+                    return
+                }
+
                 console.log(response)
                 $("#modalTableAuto")
                     .DataTable()

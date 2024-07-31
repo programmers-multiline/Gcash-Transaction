@@ -22,6 +22,9 @@
                                 <th>Amount</th>
                                 <th>Remarks</th>
                                 <th>status</th>
+                                @if (request()->is('pages/transactions'))
+                                <th>Action</th>  
+                                @endif
                             </tr>
                         </thead>
                         <tbody>

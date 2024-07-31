@@ -30,6 +30,12 @@
 
 @section('content')
     <!-- Page Content -->
+    <div class="loader-container" id="loader"
+        style="display: none; width: 100%; height: 100%; position: absolute; top: 0; right: 0; margin-top: 0; background-color: rgba(0, 0, 0, 0.26); z-index: 2033;">
+        <dotlottie-player src="{{ asset('js/loader(new).json') }}" background="transparent" speed="1"
+            style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 160px; height: 160px" direction="1" playMode="normal"
+            loop autoplay>Loading</dotlottie-player>
+    </div>
     <div class="content">
         <div id="tableContainer" class="block block-rounded">
             <div class="block-content block-content-full overflow-x-auto">
@@ -67,6 +73,7 @@
 
     <script src="{{ asset('js/plugins/datatables-select/js/dataTables.select.js') }}"></script>
     <script src="{{ asset('js/plugins/datatables-select/js/select.dataTables.js') }}"></script>
+    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
 
     {{-- filepond --}}
     <script>
@@ -298,11 +305,9 @@
 
             $(document).on("change", ".selectedTools", function() {
 
-                data = modalTable.rows({
+                data = $("#modalTable").DataTable().rows({
                     selected: true
                 }).data();
-
-                console.log(data)
 
             })
 
@@ -342,6 +347,9 @@
                         idArray: arrayToString,
                         _token: "{{ csrf_token() }}"
                     },
+                    beforeSend() {
+                        $("#loader").show();
+                    },
                     success(response) {
                         const transactionStatus = $.map(response, function(res) {
                             return res.transaction_status;
@@ -357,7 +365,7 @@
                                 $("#transactionCountAcc").text(transactionCountAcc - 1);
                             }
                         }
-
+                        $("#loader").hide();
                         table.ajax.reload();
                         modalTable.ajax.reload();
                         $("#modalTableAuto").DataTable().ajax.reload();

@@ -153,47 +153,11 @@
                                 data: 'remarks'
                             },
                         ],
-                        dom: 'Bfrtip',
-                        buttons: [{
-                            text: '<i class="fa fa-download me-1"></i> Download',
-                            className: 'bg-primary downloadBtn',
-                            action: function(e, dt, ) {
-                                const currentDate = $("#currentDate").val();
-                                const copiedData = dt.buttons.exportData().body;
-                                
-
-                                const columnWidths = [];
-                                copiedData.forEach(row => {
-                                    row.forEach((cell, columnIndex) => {
-                                        const cellWidth = cell.length;
-                                        if (!columnWidths[columnIndex] || cellWidth > columnWidths[columnIndex]) {
-                                            columnWidths[columnIndex] = cellWidth;
-                                        }
-                                    });
-                                });
-
-                                // Pad each cell to match the maximum width
-                                const paddedData = copiedData.map(row => {
-                                    return row.map((cell, columnIndex) => {
-                                        const padding = ' '.repeat(columnWidths[columnIndex] - cell.length);
-                                        return cell + padding;
-                                    });
-                                });
-
-                                const dataString = paddedData.map(row => row.join('\t')).join('\n');
-
-
-
-                                const blob = new Blob([dataString], {
-                                    type: 'text/plain'
-                                });
-                                const a = document.createElement('a');
-                                a.href = URL.createObjectURL(blob);
-                                a.download = "Gcash Transactions ("+ currentDate + ').txt';
-                                a.click();
-                                URL.revokeObjectURL(a.href);
+                        layout: {
+                            topStart: {
+                                buttons: [ 'csv', 'excel',]
                             }
-                        }, ],
+                        },
                         scrollX: true,
                         drawCallback: function() {
                             if (status) {

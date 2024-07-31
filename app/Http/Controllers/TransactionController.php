@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Maatwebsite\Excel\Excel;
 use App\Models\TransactionInfo;
 use Yajra\DataTables\DataTables;
+use App\Models\GoogleFormResponses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use App\Imports\AccTransactionImport;
@@ -221,14 +222,43 @@ class TransactionController extends Controller
             })
 
             ->addColumn('amount', function ($row) {
-                return number_format($row->amount_deducted, 2);
+                return number_format($row->amount - 5, 2);
             })
 
-            ->rawColumns(['status', 'total_number_approved', 'total_number_declined', 'mobile_number'])
+            ->addColumn('action', function ($row){
+                      return '<button type="button" id="editTransactionBtn" data-id="'.$row->id.'" data-branch="'.$row->branch_name.'" data-mn="'.$row->gcash_number.'" data-cn="'.$row->client_name.'" data-amount="'.$row->amount.'" data-remarks="'.$row->remarks.'" class="btn btn-sm btn-info js-bs-tooltip-enabled" data-bs-toggle="tooltip" aria-label="Edit" data-bs-original-title="Edit">
+                <i class="fa fa-pencil-alt"></i>
+              </button>
+              <button type="button" id="deleteTransactionsBtn" data-id="'.$row->id.'" class="btn btn-sm btn-danger js-bs-tooltip-enabled" data-bs-toggle="tooltip" aria-label="Delete" data-bs-original-title="Delete">
+                <i class="fa fa-times"></i>
+              </button>';
+            })
+
+            ->rawColumns(['status', 'total_number_approved', 'total_number_declined', 'mobile_number', 'action'])
             ->toJson();
     }
 
+    public function edit_transactions(Request $request){
+        $transaction = Transactions::find($request->id);
 
+        $gfr = GoogleFormResponses::where('status', 1)->where('client_id', $transaction->client_id)->first();
+        
+        $transaction->client_name = $request->cn;
+        $transaction->amount = $request->amount;
+        $transaction->remarks = $request->remarks;
+        $gfr->gcash_number = $request->mn;
+
+        $transaction->update();
+        $gfr->update();
+    }
+
+    public function delete_transaction(Request $request){
+        $transaction = Transactions::find($request->id);
+
+        $transaction->status = 0;
+
+        $transaction->update();
+    }
 
 
     public function fetch_transactions_approved(Request $request)
@@ -275,7 +305,7 @@ class TransactionController extends Controller
             })
 
             ->addColumn('amount', function ($row) {
-                return number_format($row->amount_deducted, 2);
+                return number_format($row->amount - 5, 2);
             })
 
             ->rawColumns(['status'])
@@ -364,13 +394,14 @@ class TransactionController extends Controller
                 $ti = TransactionInfo::find($transaction->transaction_id);
                 $ti->progress = "done";
                 $ti->update();
+
+                $user = User::where('status', 1)->where('user_type_id', 4)->first();
+    
+                $mail_data = ['user' => $user->firstname . ' ' . $user->lastname, 'transaction_number' => $transac[0]->transaction_number, 'date_uploaded' => $ti->date_uploaded];
+    
+                Mail::to($user->email)->send(new NotifyTreasury($mail_data));
             }
 
-            // $user = User::where('status', 1)->where('user_type_id', 4)->first();
-
-            // $mail_data = [];
-
-            // Mail::to($user->email)->send(new NotifyTreasury($mail_data));
 
             return $transac;
         }

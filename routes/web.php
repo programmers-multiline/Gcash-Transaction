@@ -4,19 +4,28 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileUploadController;
+use App\Http\Controllers\GoogleSheetController;
 use App\Http\Controllers\TransactionController;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 
 Route::view('/', 'login');
+Route::view('/treasury', 'treasury_notif');
 
 Route::post('/', [UserController::class, 'auth_login'])->name('login');
 Route::get('/logout', [UserController::class, 'auth_logout'])->name('logout');
 
 
+Route::post('/gform-webhook', [GoogleSheetController::class, 'webhook']);
+
 Route::middleware(['auth'])->group(function () {   
 
     Route::get('/dashboard', [DashboardController::class, 'dashboard']);
     Route::get('/transactions', [TransactionController::class, 'fetch_transactions'])->name('fetch_transactions');
+    Route::post('/transactions/edit', [TransactionController::class, 'edit_transactions'])->name('edit_transactions');
+    Route::post('/transactions/delete', [TransactionController::class, 'delete_transaction'])->name('delete_transaction');
     Route::post('/transactions/approval', [TransactionController::class, 'approve_transaction'])->name('approve_transaction');
     Route::post('/transactions/decline', [TransactionController::class, 'decline_transaction'])->name('decline_transaction');
     Route::get('/transactions/approved', [TransactionController::class, 'fetch_transactions_approved'])->name('fetch_transactions_approved');
@@ -31,11 +40,16 @@ Route::middleware(['auth'])->group(function () {
     
     Route::post('upload_transaction', [FileUploadController::class, 'upload_transaction'])->name('upload_transaction');
 
+    Route::get('/sheet-data', [GoogleSheetController::class, 'getSheetData']);
+
+
     Route::view('/pages/transactions', 'pages.transactions');
     Route::view('/pages/transactions_acc', 'pages.transactions_acc');
     Route::view('/pages/transaction_logs', 'pages.transaction_logs');
     Route::view('/pages/transaction_treasury', 'pages.transaction_treasury');
     Route::view('/pages/transaction_approver', 'pages.transaction_approver');
+
+    // Route::post('/gform-webhook', [GoogleSheetController::class, 'webhook']);
 });
 
 
